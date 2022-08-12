@@ -4,27 +4,26 @@ const url = require('url')
 const hostname = '127.0.0.1';
 const port = 8888;
 
-function start(route){
-    const server = http.createServer((req, res) => {
-      var pathname = url.parse(req.url).pathname;
-      console.log('Request for ' +   pathname  + ' recive')
+function start(route, handle) {
+  function onRequest(request, response) {
+      var dataPosteada = "";
+      var pathname = url.parse(request.url).pathname;
+      console.log("Peticion para " + pathname + " recibida.");
+      request.setEncoding("utf8");
 
-      route(pathname);
-
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');
-      res.write('Otra prueba de ');
-      res.end('Hello World');
+    request.addListener("data", function(trozoPosteado) {
+    });
+  dataPosteada += trozoPosteado;
+  console.log("Recibido trozo POST '" + trozoPosteado + "'.");
   
-});
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-  console.log('Servidor Iniciado');
-});
-}
-
-
-
+  request.addListener("end", function() {
+      route(handle, pathname, response, dataPosteada);
+  });
+  }
+  http.createServer(onRequest).listen(8888);
+  console.log("Servidor Iniciado");
+  }
+  
 
 
 exports.start = start;
